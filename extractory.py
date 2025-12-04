@@ -22,7 +22,7 @@ import tempfile
 import unicodedata
 from collections import Counter, OrderedDict
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional, Tuple
+from typing import Dict, Iterable, List, Optional, Tuple, Union
 
 # ---------------------------
 # Optional C-based Aho-Corasick (pyahocorasick)
@@ -954,6 +954,16 @@ def infer_transforms_cmd(cracked_path: str, dict_path: str, out_dir: str, show_p
 def main(argv: Optional[List[str]] = None) -> None:
     logging.basicConfig(level=DEFAULT_LOG_LEVEL, format="%(levelname)s: %(message)s")
     p = argparse.ArgumentParser(prog="extractor.py")
+
+    # Global compatibility flags (accept them so external tooling can pass them)
+    # They are parsed at top-level and available in args for any subcommand.
+    p.add_argument("--mode", choices=["optimized", "default"], default="default",
+                   help="Compatibility: runtime mode (no-op unless consumed by code)")
+    p.add_argument("--workers", type=int, default=1,
+                   help="Compatibility: number of worker processes/threads to use")
+    p.add_argument("--batch-size", type=int, default=0,
+                   help="Compatibility: batch size for processing (0 means no batching)")
+
     sp = p.add_subparsers(dest="cmd")
     try:
         sp.required = True
@@ -1073,7 +1083,7 @@ def main(argv: Optional[List[str]] = None) -> None:
         raise
 
 # gen-wordfreq implementation (kept near bottom)
-def gen_wordfreq_from_file(input_path: str, out_path: Optional[str] = None, min_token_len: int = 1, min_count: int = 1, top_n: Optional[int] = None, sample_lines: Optional[int] = None, show_progress: bool = True) -> Optional[str]:
+def gen_wordfreq_from_file(input_path: str, out_path: Optional[str] = None, min_token_len: int = 1, min_count: int = 1, top_n: Optional[int] = None, sample_lines: Optional[int] = None, show_progress: bool = True) -> Union[str, List[Tuple[str, int]]]:
     inp = Path(input_path)
     if not inp.exists():
         LOG.error("input file %s does not exist", input_path)
