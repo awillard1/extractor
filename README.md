@@ -1,5 +1,5 @@
 # extractor.py
-
+See the order in which to run the commands at https://github.com/awillard1/pentesting/blob/main/commands/password-cracking.md
 **Password-list analysis & Hashcat artifact generator**
 
 This repository contains `extractor.py` — a robust Python utility to analyze password lists, infer common password transforms, and export Hashcat-friendly artifacts such as prioritized candidate lists, masks (`.hcmask`), suffix lists, and `.rule` files.
